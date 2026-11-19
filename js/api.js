@@ -70,7 +70,7 @@ window.API = (() => {
         await espera(150);
         const tipo = (blob.type || '').startsWith('video') ? 'video' : 'imagem';
         if (tipo === 'video') return { url: null, tipo, nome: nomeOriginal, demo: true };
-        const menor = await U.comprimirImagem(blob, 640, 0.6);  // pequeno para caber no navegador
+        const menor = await U.comprimirImagem(blob, 1280, 0.72);  // reduzida para caber no navegador
         return { url: await U.blobParaDataURL(menor), tipo, nome: nomeOriginal };
       },
       async registrar(p) {

@@ -1,6 +1,6 @@
 // Service worker: permite instalar o app e abrir a tela inicial mesmo com sinal fraco.
 // Estratégia "rede primeiro": sempre tenta a versão nova; usa o cache só se estiver offline.
-const CACHE = 'alerta-fogo-v1';
+const CACHE = 'alerta-fogo-v2';
 const BASE = ['./', 'index.html', 'css/app.css', 'js/config.js', 'js/util.js', 'js/classificacao.js',
   'js/api.js', 'js/solicitante.js', 'lib/leaflet/leaflet.js', 'lib/leaflet/leaflet.css', 'lib/supabase.js',
   'img/icone.svg', 'manifest.webmanifest'];

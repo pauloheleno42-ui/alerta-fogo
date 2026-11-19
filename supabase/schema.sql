@@ -54,6 +54,9 @@ create table if not exists public.ocorrencias (
   user_agent            text
 );
 
+-- RG opcional do solicitante (adicionado depois; seguro rodar de novo)
+alter table public.ocorrencias add column if not exists rg text;
+
 create index if not exists ocorrencias_criado_idx on public.ocorrencias (criado_em desc);
 create index if not exists ocorrencias_tel_idx    on public.ocorrencias (telefone, criado_em desc);
 
@@ -122,10 +125,10 @@ begin
   end if;
 
   insert into public.ocorrencias
-    (nome, telefone, lat, lng, precisao_m, no_local, referencia, respostas, observacao,
+    (nome, telefone, rg, lat, lng, precisao_m, no_local, referencia, respostas, observacao,
      classificacao, motivos, midias, unidade_proxima, user_agent)
   values
-    (v_nome, v_tel, v_lat, v_lng,
+    (v_nome, v_tel, nullif(left(upper(trim(coalesce(p->>'rg',''))), 20), ''), v_lat, v_lng,
      nullif(p->>'precisao_m','')::double precision,
      nullif(p->>'no_local','')::boolean,
      left(p->>'referencia', 300),

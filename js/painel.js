@@ -143,10 +143,11 @@
       <h4>Por que essa classificação</h4>
       <ul>${(o.motivos || []).map(m => `<li>${U.esc(m)}</li>`).join('')}</ul>
 
-      ${(o.midias || []).length ? `<h4>Fotos e vídeos</h4><div class="galeria">${o.midias.map(m =>
+      ${(o.midias || []).length ? `<h4>Fotos e vídeos</h4><div class="galeria">${o.midias.map((m, i) =>
         !m.url ? `<div class="semvideo">🎥 ${U.esc(m.nome)}<br>(vídeo não salvo no modo demonstração)</div>`
-        : m.tipo === 'video' ? `<video src="${U.esc(m.url)}" controls preload="metadata" playsinline></video>`
-        : `<a href="${U.esc(m.url)}" target="_blank" rel="noopener"><img src="${U.esc(m.url)}" alt="" loading="lazy"></a>`).join('')}</div>` : ''}
+        : m.tipo === 'video' ? `<button class="mini" data-midia="${i}"><video src="${U.esc(m.url)}" muted preload="metadata" playsinline></video><span class="play">▶</span></button>`
+        : `<button class="mini" data-midia="${i}"><img src="${U.esc(m.url)}" alt="" loading="lazy"></button>`).join('')}</div>
+        <div class="ajuda" style="font-size:12px;margin-top:4px">Clique para ampliar</div>` : ''}
 
       <h4>Respostas do solicitante</h4>
       <table>${PERGUNTAS.map(q => `<tr><td>${U.esc(q.titulo)}</td><td><b>${U.esc(rotuloResposta(q.id, r[q.id]))}</b></td></tr>`).join('')}
@@ -169,6 +170,7 @@
       <table>
         <tr><td>Nome</td><td><b>${U.esc(o.nome)}</b></td></tr>
         <tr><td>Telefone</td><td><b>${U.esc(U.formatarTelefone(tel))}</b></td></tr>
+        <tr><td>RG</td><td><b>${o.rg ? U.esc(o.rg) : '<span class="ajuda">não informado</span>'}</b></td></tr>
       </table>
       <div class="links">
         <a href="tel:${tel}">📞 Ligar</a>
@@ -191,6 +193,7 @@
     $('fechar').onclick = () => { $d.classList.add('oculto'); selecionada = null; editando = null; desenhar(); };
     $('copiarCoord').onclick = () => copiar(`${o.lat.toFixed(6)}, ${o.lng.toFixed(6)}`);
     $('copiarResumo').onclick = () => copiar(resumo(o));
+    $d.querySelectorAll('[data-midia]').forEach(b => b.onclick = () => abrirMidia(o.midias.filter(m => m.url), +b.dataset.midia, o.midias));
     $('gSalvar').onclick = async () => {
       try {
         await API.adminAtualizar(chave, o.id, $('gStatus').value, $('gClasse').value, $('gObs').value);
@@ -199,6 +202,39 @@
         await carregar();
       } catch (e) { toast('Erro: ' + e.message); }
     };
+  }
+
+  // ---------------------------------------------------------- visualizador de fotos/vídeos
+  function abrirMidia(lista, idxOriginal, todas) {
+    let i = Math.max(0, lista.indexOf(todas[idxOriginal]));
+    const box = document.createElement('div');
+    box.className = 'visualizador';
+    const mostrar = () => {
+      const m = lista[i];
+      const ehLink = /^https?:/.test(m.url);
+      box.innerHTML = `
+        <button class="vz-fechar" aria-label="Fechar">×</button>
+        ${lista.length > 1 ? '<button class="vz-ant" aria-label="Anterior">‹</button><button class="vz-prox" aria-label="Próxima">›</button>' : ''}
+        <div class="vz-midia">${m.tipo === 'video'
+          ? `<video src="${U.esc(m.url)}" controls autoplay playsinline></video>`
+          : `<img src="${U.esc(m.url)}" alt="">`}</div>
+        <div class="vz-rodape">${i + 1} de ${lista.length} · ${U.esc(m.nome || '')}
+          ${ehLink ? ` · <a href="${U.esc(m.url)}" target="_blank" rel="noopener">abrir original em nova aba</a>` : ''}</div>`;
+      box.querySelector('.vz-fechar').onclick = fechar;
+      const ant = box.querySelector('.vz-ant'), prox = box.querySelector('.vz-prox');
+      if (ant) ant.onclick = e => { e.stopPropagation(); i = (i - 1 + lista.length) % lista.length; mostrar(); };
+      if (prox) prox.onclick = e => { e.stopPropagation(); i = (i + 1) % lista.length; mostrar(); };
+    };
+    const tecla = e => {
+      if (e.key === 'Escape') fechar();
+      if (e.key === 'ArrowLeft' && lista.length > 1) { i = (i - 1 + lista.length) % lista.length; mostrar(); }
+      if (e.key === 'ArrowRight' && lista.length > 1) { i = (i + 1) % lista.length; mostrar(); }
+    };
+    function fechar() { box.remove(); document.removeEventListener('keydown', tecla); }
+    box.addEventListener('click', e => { if (e.target === box || e.target.classList.contains('vz-midia')) fechar(); });
+    document.addEventListener('keydown', tecla);
+    document.body.appendChild(box);
+    mostrar();
   }
 
   function resumo(o) {
@@ -211,7 +247,7 @@
       ...PERGUNTAS.map(q => `${q.titulo} ${rotuloResposta(q.id, r[q.id])}`),
       o.observacao ? `Obs. do solicitante: ${o.observacao}` : '',
       `Motivos: ${(o.motivos || []).join('; ')}`,
-      `Solicitante: ${o.nome} — ${U.formatarTelefone(o.telefone)}`,
+      `Solicitante: ${o.nome} — ${U.formatarTelefone(o.telefone)}${o.rg ? ' — RG ' + o.rg : ''}`,
     ].filter(Boolean).join('\n');
   }
 

@@ -18,7 +18,7 @@
     local: null,         // {lat, lng, precisao_m}
     no_local: true,
     referencia: '', observacao: '',
-    nome: salvo.nome || '', telefone: salvo.telefone || '', consentimento: false,
+    nome: salvo.nome || '', telefone: salvo.telefone || '', rg: salvo.rg || '', consentimento: false,
   };
 
   const TELAS = ['inicio', 'midia', ...PERGUNTAS.map(q => 'q:' + q.id), 'local', 'dados'];
@@ -258,16 +258,19 @@
         <input class="campo-in" id="nome" autocomplete="name" maxlength="120" value="${U.esc(estado.nome)}">
         <label class="campo" for="tel">Telefone com DDD</label>
         <input class="campo-in" id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="(31) 99999-9999" value="${U.esc(U.formatarTelefone(estado.telefone))}">
+        <label class="campo" for="rg">RG <span style="font-weight:400;color:var(--cinza)">(opcional)</span></label>
+        <input class="campo-in" id="rg" maxlength="20" autocomplete="off" placeholder="Ex.: MG-12.345.678" value="${U.esc(estado.rg)}" style="text-transform:uppercase">
         <label class="campo" for="obs">Quer contar mais alguma coisa? (opcional)</label>
         <textarea class="campo-in" id="obs" maxlength="1000" placeholder="Ex.: o fogo está descendo o morro em direção ao bairro">${U.esc(estado.observacao)}</textarea>
         <label class="check"><input type="checkbox" id="lgpd" ${estado.consentimento ? 'checked' : ''}>
-          <span>Autorizo o Corpo de Bombeiros Militar de Minas Gerais a usar meu nome, telefone, localização e as mídias enviadas exclusivamente para o atendimento desta ocorrência (LGPD).</span></label>
+          <span>Autorizo o Corpo de Bombeiros Militar de Minas Gerais a usar meu nome, telefone, RG (se informado), localização e as mídias enviadas exclusivamente para o atendimento desta ocorrência (LGPD).</span></label>
         <div class="erro" id="erroDados"></div>
         <div class="aviso"><span>ℹ️</span><div>Trotes atrapalham o atendimento de emergências reais e podem ser crime (art. 340 do Código Penal).</div></div>
       </section>`;
     document.getElementById('nome').oninput = e => { estado.nome = e.target.value; document.getElementById('erroDados').textContent = ''; };
     const tel = document.getElementById('tel');
     tel.oninput = () => { estado.telefone = U.soDigitos(tel.value); tel.value = U.formatarTelefone(tel.value); };
+    document.getElementById('rg').oninput = e => estado.rg = e.target.value.toUpperCase().replace(/[^0-9A-Z.\-\/ ]/g, '');
     document.getElementById('obs').oninput = e => estado.observacao = e.target.value;
     document.getElementById('lgpd').onchange = e => estado.consentimento = e.target.checked;
   }
@@ -295,7 +298,7 @@
     const unidade = U.unidadeMaisProxima(estado.local, unidades);
 
     const payload = {
-      nome: estado.nome.trim(), telefone: U.soDigitos(estado.telefone),
+      nome: estado.nome.trim(), telefone: U.soDigitos(estado.telefone), rg: estado.rg.trim().slice(0, 20),
       lat: estado.local.lat, lng: estado.local.lng, precisao_m: estado.local.precisao_m,
       no_local: estado.no_local, referencia: estado.referencia.trim(), observacao: estado.observacao.trim(),
       respostas: estado.respostas, classificacao: classe, motivos, midias,
@@ -306,7 +309,7 @@
 
     try {
       const r = await API.registrar(payload);
-      try { localStorage.setItem('af_solicitante', JSON.stringify({ nome: payload.nome, telefone: payload.telefone })); } catch {}
+      try { localStorage.setItem('af_solicitante', JSON.stringify({ nome: payload.nome, telefone: payload.telefone, rg: payload.rg })); } catch {}
       telaResultado(r, unidade, falhasMidia);
     } catch (e) {
       $app.innerHTML = `
