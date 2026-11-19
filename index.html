@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#C62828">
+  <title>Alerta Fogo — Comunicar incêndio florestal</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="img/icone.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/icone-192.png">
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="faixaDemo" class="demo-faixa oculto">MODO DEMONSTRAÇÃO — nada é enviado ao Corpo de Bombeiros</div>
+  <header class="topo">
+    <img src="img/icone.svg" alt="">
+    <div>
+      <div class="nome">Alerta Fogo</div>
+      <div class="sub">Corpo de Bombeiros Militar de MG</div>
+    </div>
+    <div class="esp"></div>
+    <a class="btn-193" href="tel:193">📞 193</a>
+  </header>
+  <div class="progresso"><div id="barra"></div></div>
+
+  <main class="app" id="app"></main>
+
+  <nav class="nav-baixo oculto" id="nav">
+    <div class="dentro">
+      <button class="btn sec" id="btnVoltar">Voltar</button>
+      <button class="btn" id="btnAvancar">Continuar</button>
+    </div>
+  </nav>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="lib/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/classificacao.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/solicitante.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#C62828">
+  <title>Painel — Alerta Fogo</title>
+  <link rel="icon" href="img/icone.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/painel.css">
+</head>
+<body class="painel">
+  <div id="faixaDemo" class="demo-faixa oculto">MODO DEMONSTRAÇÃO — dados salvos só neste navegador</div>
+  <header class="topo">
+    <img src="img/icone.svg" alt="">
+    <div>
+      <div class="nome">Alerta Fogo · Painel</div>
+      <div class="sub" id="orgao"></div>
+    </div>
+    <div class="abas">
+      <button data-aba="ocorrencias" class="sel">Ocorrências</button>
+      <button data-aba="unidades">Unidades</button>
+    </div>
+    <div class="esp"></div>
+    <div class="contadores" id="contadores"></div>
+    <div class="acoes">
+      <span id="atualizado"></span>
+      <button id="btnSom">🔔 Ativar alertas</button>
+      <button id="btnLimpar" class="oculto">Limpar testes</button>
+    </div>
+  </header>
+
+  <div id="bloqueio" class="bloqueio oculto">
+    <div class="cartao">
+      <h2>🔒 Link do painel inválido</h2>
+      <p class="ajuda">Use o link completo do painel, com a chave no final (<code>painel.html#k=…</code>). Se a chave foi trocada, peça o link novo ao responsável.</p>
+    </div>
+  </div>
+
+  <section id="abaOcorrencias" class="corpo">
+    <aside class="lista">
+      <div class="filtros">
+        <select id="fStatus">
+          <option value="abertas">Abertas</option>
+          <option value="NOVA">Novas</option>
+          <option value="EM_ATENDIMENTO">Em atendimento</option>
+          <option value="fechadas">Encerradas / improcedentes</option>
+          <option value="todas">Todas</option>
+        </select>
+        <select id="fClasse">
+          <option value="">Todas as classes</option>
+          <option value="CRITICO">Crítico</option>
+          <option value="URGENTE">Urgente</option>
+          <option value="NAO_URGENTE">Não urgente</option>
+        </select>
+      </div>
+      <div id="itens"></div>
+    </aside>
+    <div class="direita">
+      <div id="mapaPainel"></div>
+      <div id="detalhe" class="detalhe oculto"></div>
+    </div>
+  </section>
+
+  <section id="abaUnidades" class="pagina oculto">
+    <div class="grade">
+      <div class="cartao">
+        <h3 style="margin-top:0">Unidades cadastradas</h3>
+        <p class="ajuda">São usadas para indicar ao solicitante a unidade mais próxima do incêndio.</p>
+        <table class="tab-un"><thead><tr><th>Nome</th><th>Coordenadas</th><th>Ativa</th><th></th></tr></thead><tbody id="tbUn"></tbody></table>
+      </div>
+      <div class="cartao form-un">
+        <h3 style="margin-top:0" id="tituloFormUn">Nova unidade</h3>
+        <input type="hidden" id="unId">
+        <label>Nome</label><input id="unNome" placeholder="Ex.: PA São Gonçalo do Rio Abaixo">
+        <label>Endereço</label><input id="unEnd">
+        <label>Telefone</label><input id="unTel" placeholder="193 ou telefone fixo da unidade">
+        <div class="dupla">
+          <div><label>Latitude</label><input id="unLat" inputmode="decimal"></div>
+          <div><label>Longitude</label><input id="unLng" inputmode="decimal"></div>
+        </div>
+        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="unAtiva" checked style="width:auto"> Ativa</label>
+        <div id="mapaUn"></div>
+        <p class="ajuda">Clique no mapa para preencher a latitude/longitude.</p>
+        <div class="linha-btn">
+          <button class="btn sec pq" id="unCancelar">Limpar</button>
+          <button class="btn pq" id="unSalvar">Salvar unidade</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="lib/leaflet/leaflet.js"></script>
+  <script src="lib/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/classificacao.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/painel.js"></script>
+</body>
+</html>
